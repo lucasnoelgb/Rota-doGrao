@@ -1,0 +1,23 @@
+/* ==========================================================================
+   Responsividade — tablet (<=1024px) e mobile (<=768px / <=640px)
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .settings-form { grid-template-columns: repeat(2, 1fr); }
+  .chart-row { grid-template-columns: 1fr; }
+  .ticker { flex-direction: row; flex-wrap: wrap; align-items: flex-start; }
+}
+
+@media (max-width: 768px) {
+  .site-header__bar { min-height: 64px; padding-top: 8px; }
+  .main-nav { order: 3; width: 100%; gap: 1.5rem; padding-bottom: 6px; overflow-x: auto; }
+}
+
+@media (max-width: 640px) {
+  .container { padding: 0 1rem; }
+  .kpi-grid,
+  .settings-form { grid-template-columns: 1fr; }
+  .card--section { padding: 1.25rem; }
+  .section-head--bordered > .label-caps { display: none; }
+  .site-header__actions .btn span { display: none; }
+  .insight { flex-direction: column; }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "rota-do-grao",
+  "version": "1.0.0",
+  "description": "Dashboard de gestão financeira e análise de custos para café especial",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "python3 -m http.server 8080",
+    "build": "python3 build.py"
+  }
+}

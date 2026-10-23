@@ -1,0 +1,52 @@
+/* ==========================================================================
+   Design tokens — Espresso Reserve Analytics
+   ========================================================================== */
+:root {
+  /* Superfícies */
+  --color-canvas: #140f0c;
+  --color-surface: rgba(20, 15, 12, 0.85);
+  --color-surface-input: rgba(26, 19, 15, 0.85);
+  --color-surface-raised: #241e1b;
+  --color-surface-high: #2f2925;
+  --color-surface-modal: rgba(26, 19, 15, 0.97);
+  --color-veil: rgba(10, 8, 6, 0.8);
+
+  /* Texto */
+  --color-text: #e6c6a4;
+  --color-text-muted: #c4ad91;
+  --color-ink: #1b160b;
+
+  /* Acentos */
+  --color-accent: #c86d2b;
+  --color-accent-hover: #c46520;
+  --color-accent-soft: #ffb689;
+  --color-warn: #e1c19f;
+
+  /* Bordas */
+  --border-subtle: rgba(224, 193, 160, 0.12);
+  --border-base: rgba(224, 193, 160, 0.15);
+  --border-field: rgba(224, 193, 160, 0.2);
+  --border-strong: rgba(224, 193, 160, 0.3);
+
+  /* Tipografia */
+  --font-display: "Oswald", "Arial Narrow", sans-serif;
+  --font-body: "Open Sans", system-ui, sans-serif;
+
+  /* Forma e espaço */
+  --radius-card: 12px;
+  --radius-field: 12px;
+  --radius-pill: 9999px;
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+  --gutter: 1.25rem;
+  --container: 80rem;
+
+  /* Elevação */
+  --shadow-modal: 0 24px 48px -12px rgba(0, 0, 0, 0.85);
+  --blur-glass: blur(16px);
+
+  color-scheme: dark;
+}

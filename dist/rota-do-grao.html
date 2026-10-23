@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Rota do Grão: gestão financeira e análise de custos para a cadeia do café especial.">
+  <meta name="theme-color" content="#140f0c">
+  <title>Rota do Grão — Gestão Financeira &amp; Análise de Custos</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&amp;family=Oswald:wght@300..700&amp;display=swap" rel="stylesheet">
+  <style>
+/* ==========================================================================
+   Design tokens — Espresso Reserve Analytics
+   ========================================================================== */
+:root {
+  /* Superfícies */
+  --color-canvas: #140f0c;
+  --color-surface: rgba(20, 15, 12, 0.85);
+  --color-surface-input: rgba(26, 19, 15, 0.85);
+  --color-surface-raised: #241e1b;
+  --color-surface-high: #2f2925;
+  --color-surface-modal: rgba(26, 19, 15, 0.97);
+  --color-veil: rgba(10, 8, 6, 0.8);
+
+  /* Texto */
+  --color-text: #e6c6a4;
+  --color-text-muted: #c4ad91;
+  --color-ink: #1b160b;
+
+  /* Acentos */
+  --color-accent: #c86d2b;
+  --color-accent-hover: #c46520;
+  --color-accent-soft: #ffb689;
+  --color-warn: #e1c19f;
+
+  /* Bordas */
+  --border-subtle: rgba(224, 193, 160, 0.12);
+  --border-base: rgba(224, 193, 160, 0.15);
+  --border-field: rgba(224, 193, 160, 0.2);
+  --border-strong: rgba(224, 193, 160, 0.3);
+
+  /* Tipografia */
+  --font-display: "Oswald", "Arial Narrow", sans-serif;
+  --font-body: "Open Sans", system-ui, sans-serif;
+
+  /* Forma e espaço */
+  --radius-card: 12px;
+  --radius-field: 12px;
+  --radius-pill: 9999px;
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+  --gutter: 1.25rem;
+  --container: 80rem;
+
+  /* Elevação */
+  --shadow-modal: 0 24px 48px -12px rgba(0, 0, 0, 0.85);
+  --blur-glass: blur(16px);
+
+  color-scheme: dark;
+}
+
+/* ==========================================================================
+   Base — reset, fundo atmosférico, utilitários tipográficos
+   ========================================================================== */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 110px;
+}
+
+body {
+  margin: 0;
+  background: var(--color-canvas);
+  color: var(--color-text);
+  font: 400 14px/22px var(--font-body);
+  overflow-x: hidden;
+}
+
+h1, h2, h3, p { margin: 0; }
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: 0.03em;
+}
+
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+
+/* Fundo: gradientes + textura de grãos (mix-blend luminosity, 7%) */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+body::before {
+  background:
+    radial-gradient(circle at 85% 0, rgba(214, 120, 54, 0.14), transparent 55%),
+    radial-gradient(ellipse at 15% 90%, rgba(90, 50, 25, 0.35), transparent 60%),
+    linear-gradient(#120d0a, #17120f 50%, #120d0a);
+}
+body::after {
+  opacity: 0.07;
+  mix-blend-mode: luminosity;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cg fill='none' stroke='%23e0c1a0' stroke-width='1.4'%3E%3Cg transform='rotate(35 38 40)'%3E%3Cellipse cx='38' cy='40' rx='22' ry='14'/%3E%3Cpath d='M17 40q10-9 21 0t21 0'/%3E%3C/g%3E%3Cg transform='rotate(-25 105 100)'%3E%3Cellipse cx='105' cy='100' rx='22' ry='14'/%3E%3Cpath d='M84 100q10-9 21 0t21 0'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+.page { position: relative; z-index: 1; }
+
+.container {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* Utilitários tipográficos */
+.label-caps {
+  font: 700 11px/16px var(--font-body);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.numeral {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+}
+.text-muted { color: var(--color-text-muted); }
+.caption { font-size: 12px; line-height: 18px; color: var(--color-text-muted); }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.icon {
+  width: 1em;
+  height: 1em;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vertical-align: -0.15em;
+  flex: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* ==========================================================================
+   Layout — cabeçalho, hero, grids de seção e rodapé
+   ========================================================================== */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(18, 13, 10, 0.85);
+  backdrop-filter: var(--blur-glass);
+  -webkit-backdrop-filter: var(--blur-glass);
+  border-bottom: 1px solid var(--border-base);
+}
+.site-header__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  min-height: 80px;
+}
+.site-header__actions { display: flex; align-items: center; gap: 0.75rem; }
+
+.brand { display: flex; align-items: center; gap: 0.75rem; }
+.brand__logo {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-surface-high);
+  border: 1px solid var(--border-strong);
+  color: var(--color-accent);
+  font-size: 22px;
+}
+.brand__name {
+  display: block;
+  font: 500 20px/24px var(--font-display);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.brand__status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font: 700 9px/12px var(--font-body);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 50% { opacity: 0.35; } }
+
+.main-nav { display: flex; gap: 2rem; }
+.main-nav__link {
+  padding: 6px 0;
+  border-bottom: 2px solid transparent;
+  color: var(--color-text-muted);
+  font: 700 11px/16px var(--font-body);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.15s;
+}
+.main-nav__link:hover { color: var(--color-text); }
+.main-nav__link[aria-current="true"] {
+  color: var(--color-accent-soft);
+  border-color: var(--color-accent-soft);
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding-top: 2rem;
+  padding-bottom: 1rem;
+}
+
+.hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-lg);
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.hero__title {
+  margin-bottom: var(--space-sm);
+  font-size: clamp(28px, 4.2vw, 40px);
+  line-height: 1.2;
+}
+.hero__lead { max-width: 46rem; color: var(--color-text-muted); }
+.hero__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  background: rgba(47, 41, 37, 0.8);
+  border: 1px solid rgba(85, 67, 57, 0.6);
+}
+.hero__tag .icon { color: var(--color-accent); }
+.hero__tag .label-caps { color: var(--color-text); }
+.ticker { display: flex; flex-direction: column; align-items: flex-end; gap: var(--space-sm); }
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+.section-head--bordered {
+  padding-bottom: 1.25rem;
+  margin-bottom: var(--space-lg);
+  border-bottom: 1px solid var(--border-base);
+}
+.section-head h2 { font-size: 20px; }
+.section-head--page { flex-wrap: wrap; }
+.section-head--page h2 { font-size: 28px; }
+
+.dashboard { display: flex; flex-direction: column; gap: var(--space-lg); }
+.legend { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-sm); }
+.kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gutter); }
+.chart-row { display: grid; grid-template-columns: 7fr 5fr; gap: var(--space-lg); }
+.settings-form { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--gutter); align-items: end; }
+
+.site-footer {
+  position: relative;
+  z-index: 1;
+  margin-top: 3rem;
+  background: #120d0a;
+  border-top: 1px solid var(--border-subtle);
+}
+.site-footer__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gutter);
+  padding-top: var(--space-xl);
+  padding-bottom: var(--space-xl);
+}
+.site-footer__brand { font: 500 20px var(--font-display); letter-spacing: 0.1em; text-transform: uppercase; }
+.site-footer__nav { display: flex; flex-wrap: wrap; gap: var(--space-lg); }
+.site-footer a { color: var(--color-text-muted); font-size: 12px; text-decoration: none; }
+.site-footer a:hover { color: var(--color-accent-soft); }
+
+/* ==========================================================================
+   Componentes — botões, cards, formulários, KPIs, tabela, modal, toast
+   ========================================================================== */
+
+/* ---- Botões ------------------------------------------------------------ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: 0.625rem 1.5rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  font: 500 14px/20px var(--font-display);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.2s;
+}
+.btn:active { transform: scale(0.97); }
+.btn--primary { background: var(--color-accent); color: var(--color-canvas); font-weight: 600; }
+.btn--primary:hover { background: var(--color-accent-hover); }
+.btn--outline {
+  background: rgba(200, 109, 43, 0.1);
+  border-color: rgba(200, 109, 43, 0.7);
+  color: var(--color-text);
+  padding: 0.5rem 1.25rem;
+  font: 700 11px/16px var(--font-body);
+}
+.btn--outline:hover { border-color: var(--color-accent); color: var(--color-accent); }
+.btn--ghost { background: none; color: var(--color-text-muted); }
+.btn--ghost:hover { background: rgba(230, 198, 164, 0.06); color: var(--color-text); }
+.btn--block { width: 100%; border-radius: var(--radius-field); }
+
+.icon-btn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--color-text-muted);
+  font-size: 20px;
+  transition: color 0.2s, background 0.2s;
+}
+.icon-btn:hover { color: var(--color-accent-soft); background: rgba(224, 193, 160, 0.07); }
+.icon-btn__badge {
+  position: absolute;
+  top: 6px;
+  right: 7px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  box-shadow: 0 0 0 2px #120d0a;
+}
+
+/* ---- Cards (glassmorphism) -------------------------------------------- */
+.card {
+  background: var(--color-surface);
+  backdrop-filter: var(--blur-glass);
+  -webkit-backdrop-filter: var(--blur-glass);
+  border: 1px solid var(--border-base);
+  border-radius: var(--radius-card);
+  transition: border-color 0.3s;
+}
+.card:hover { border-color: var(--border-strong); }
+.card--section { position: relative; padding: 2rem; }
+.panel { display: flex; flex-direction: column; gap: var(--space-md); padding: var(--space-lg); }
+.panel__head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 0.75rem; }
+.panel__head h3 { font-size: 20px; }
+.panel__foot { margin-top: auto; padding-top: 0.75rem; border-top: 1px solid var(--border-subtle); }
+.chart-box { position: relative; height: 300px; }
+.chart-box--short { height: 210px; }
+
+/* ---- Badges, pílulas e chips ------------------------------------------ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border: 1px solid rgba(200, 109, 43, 0.3);
+  border-radius: var(--radius-pill);
+  background: rgba(200, 109, 43, 0.12);
+  color: var(--color-accent);
+  font: 700 11px/14px var(--font-body);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.badge--muted { background: rgba(89, 67, 41, 0.4); border-color: var(--border-strong); color: var(--color-warn); }
+.badge--legend { color: var(--color-text-muted); }
+.badge--legend-active { color: var(--color-text); }
+.badge--tag { background: var(--color-text); border-color: var(--color-text); color: var(--color-ink); padding: 4px 12px; }
+.badge--flat { border-radius: 4px; background: var(--color-accent); color: var(--color-canvas); margin-left: 8px; vertical-align: 3px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--color-accent); }
+.legend-dot--prev { background: var(--color-text-muted); }
+
+.quote {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 6px 14px;
+  border: 1px solid var(--border-base);
+  border-radius: var(--radius-pill);
+  background: rgba(18, 13, 10, 0.8);
+  white-space: nowrap;
+}
+.quote__value { font-size: 22px; font-weight: 500; }
+.quote__delta { font-size: 12px; font-weight: 700; }
+.is-up { color: var(--color-accent-soft); }
+.is-down { color: var(--color-warn); }
+
+.chips { display: flex; flex-wrap: wrap; gap: var(--space-sm); }
+.chip {
+  padding: 6px 14px;
+  border: 1px solid rgba(85, 67, 57, 0.6);
+  border-radius: var(--radius-pill);
+  background: rgba(47, 41, 37, 0.6);
+  color: var(--color-text-muted);
+  font: 700 11px/14px var(--font-body);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+.chip:hover { color: var(--color-text); }
+.chip[aria-pressed="true"] { background: var(--color-text); border-color: var(--color-text); color: var(--color-ink); }
+
+.toggle { display: flex; padding: 3px; border: 1px solid var(--border-base); border-radius: var(--radius-pill); background: var(--color-surface-raised); }
+.toggle button { padding: 3px 12px; border: 0; border-radius: var(--radius-pill); background: none; color: var(--color-text-muted); font: 700 11px var(--font-body); }
+.toggle button[aria-pressed="true"] { background: var(--color-text); color: var(--color-ink); }
+
+/* ---- Formulários ------------------------------------------------------- */
+.field { display: flex; flex-direction: column; gap: var(--space-sm); }
+.input, .select {
+  width: 100%;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--border-field);
+  border-radius: var(--radius-field);
+  background: var(--color-surface-input);
+  color: var(--color-text);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.input::placeholder { color: rgba(196, 173, 145, 0.45); }
+.input:focus, .select:focus { border-color: var(--color-accent); box-shadow: 0 0 0 3px rgba(200, 109, 43, 0.15); }
+.input--numeric { font: 500 22px/28px var(--font-display); font-variant-numeric: tabular-nums; letter-spacing: 0.03em; }
+.select {
+  padding-right: 2rem;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23C4AD91' stroke-width='2'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+.input-prefix { position: relative; }
+.input-prefix > .label-caps { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+.input-prefix .input { padding-left: 2.8rem; }
+
+.stepper { display: flex; overflow: hidden; border: 1px solid var(--border-field); border-radius: var(--radius-field); background: var(--color-surface-input); }
+.stepper button { width: 42px; border: 0; background: none; color: var(--color-text-muted); font-size: 18px; }
+.stepper button:hover { background: var(--color-surface-raised); color: var(--color-text); }
+.stepper input { flex: 1; min-width: 0; border: 0; background: none; text-align: center; font: 500 22px/28px var(--font-display); font-variant-numeric: tabular-nums; outline: none; }
+
+.segmented { display: flex; gap: 6px; padding: 4px; border: 1px solid var(--border-field); border-radius: var(--radius-field); background: var(--color-surface-input); }
+.segmented button { flex: 1; padding: 4px; border: 0; border-radius: 8px; background: none; color: var(--color-text-muted); font: 700 11px/16px var(--font-body); letter-spacing: 0.04em; }
+.segmented button[aria-pressed="true"] { background: var(--color-text); color: var(--color-ink); }
+
+/* ---- KPIs -------------------------------------------------------------- */
+.kpi { padding: var(--space-lg); }
+.kpi__top { display: flex; justify-content: space-between; margin-bottom: var(--space-sm); }
+.kpi__top .icon { color: var(--color-accent); font-size: 20px; }
+.kpi__value { margin: var(--space-sm) 0; font: 600 clamp(32px, 4vw, 48px)/52px var(--font-display); white-space: nowrap; }
+.kpi__value small { font: 400 20px var(--font-display); color: var(--color-text-muted); }
+.kpi__foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-sm); padding-top: 0.75rem; border-top: 1px solid var(--border-subtle); font-size: 12px; color: var(--color-text-muted); }
+.kpi__foot b { color: var(--color-text); }
+
+.insight { display: flex; align-items: flex-start; gap: var(--space-md); padding: var(--space-lg); border-left: 4px solid #b45f24; }
+.insight__icon { display: grid; place-items: center; flex: none; width: 40px; height: 40px; border-radius: 12px; background: rgba(200, 109, 43, 0.2); color: var(--color-accent-soft); font-size: 22px; }
+.insight h3 { display: inline; font-size: 20px; }
+.insight p { margin-top: 4px; color: var(--color-text-muted); line-height: 24px; }
+.insight b { color: var(--color-text); }
+.insight b.is-alert { color: var(--color-accent); }
+
+.note { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; border: 1px solid var(--border-base); border-radius: var(--radius-card); background: rgba(36, 30, 27, 0.6); font-size: 12px; color: var(--color-text-muted); }
+.note .icon { color: var(--color-accent); font-size: 20px; }
+
+/* ---- Tabela de dados --------------------------------------------------- */
+.table-card { overflow: hidden; }
+.table-card__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-md); padding: var(--space-lg); border-bottom: 1px solid var(--border-base); }
+.table-card__head h3 { font-size: 20px; }
+.table-card__foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.75rem; padding: var(--space-md) var(--space-lg); border-top: 1px solid var(--border-base); background: rgba(47, 41, 37, 0.3); }
+.table-card__actions { display: flex; gap: var(--space-md); }
+.link-btn { display: flex; align-items: center; gap: 4px; border: 0; background: none; color: var(--color-text-muted); font: 700 11px var(--font-body); letter-spacing: 0.08em; text-transform: uppercase; }
+.link-btn:hover { color: var(--color-text); }
+
+.table-scroll { overflow-x: auto; }
+.data-table { width: 100%; min-width: 760px; border-collapse: collapse; text-align: left; }
+.data-table th { padding: 14px 24px; border-bottom: 1px solid var(--border-base); background: rgba(47, 41, 37, 0.4); white-space: nowrap; }
+.data-table td { padding: 16px 24px; border-bottom: 1px solid rgba(224, 193, 160, 0.08); font-size: 13px; font-weight: 500; }
+.data-table tbody tr:nth-child(even) { background: rgba(26, 19, 15, 0.4); }
+.data-table tbody tr:hover { background: rgba(200, 109, 43, 0.06); }
+.data-table .is-end { text-align: right; }
+.data-table .is-center { text-align: center; }
+.data-table .cell-value { font: 500 22px/30px var(--font-display); font-variant-numeric: tabular-nums; letter-spacing: 0.02em; white-space: nowrap; }
+.sort-btn { display: inline-flex; align-items: center; gap: 4px; padding: 0; border: 0; background: none; color: inherit; font: inherit; letter-spacing: inherit; text-transform: inherit; }
+.sort-btn:hover { color: var(--color-text); }
+.lot { display: flex; align-items: center; gap: 0.75rem; }
+.lot__icon { display: grid; place-items: center; flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--color-surface-raised); color: var(--color-accent); font-size: 15px; }
+.lot b { display: block; color: var(--color-text); }
+.lot small { font-size: 12px; color: var(--color-text-muted); }
+.empty-row { text-align: center; color: var(--color-text-muted); }
+
+/* ---- Modal (<dialog>) e toast ----------------------------------------- */
+.modal { width: min(30rem, calc(100% - 2rem)); padding: 0; border: 1px solid rgba(224, 193, 160, 0.35); border-radius: var(--radius-card); background: var(--color-surface-modal); color: var(--color-text); box-shadow: var(--shadow-modal); }
+.modal::backdrop { background: var(--color-veil); }
+.modal__body { display: flex; flex-direction: column; gap: var(--space-md); padding: 1.75rem; }
+.modal__head { display: flex; align-items: center; justify-content: space-between; }
+.modal__head h2 { font-size: 24px; }
+.modal__row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); }
+.modal__actions { display: flex; justify-content: flex-end; gap: 0.75rem; }
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  z-index: 120;
+  padding: 10px 18px;
+  border-radius: var(--radius-pill);
+  background: var(--color-text);
+  color: var(--color-ink);
+  font: 700 12px var(--font-body);
+  opacity: 0;
+  transform: translate(-50%, 30px);
+  transition: opacity 0.3s, transform 0.3s;
+  pointer-events: none;
+}
+.toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
+
+/* ==========================================================================
+   Responsividade — tablet (<=1024px) e mobile (<=768px / <=640px)
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .settings-form { grid-template-columns: repeat(2, 1fr); }
+  .chart-row { grid-template-columns: 1fr; }
+  .ticker { flex-direction: row; flex-wrap: wrap; align-items: flex-start; }
+}
+
+@media (max-width: 768px) {
+  .site-header__bar { min-height: 64px; padding-top: 8px; }
+  .main-nav { order: 3; width: 100%; gap: 1.5rem; padding-bottom: 6px; overflow-x: auto; }
+}
+
+@media (max-width: 640px) {
+  .container { padding: 0 1rem; }
+  .kpi-grid,
+  .settings-form { grid-template-columns: 1fr; }
+  .card--section { padding: 1.25rem; }
+  .section-head--bordered > .label-caps { display: none; }
+  .site-header__actions .btn span { display: none; }
+  .insight { flex-direction: column; }
+}
+
+  </style>
+</head>
+<body>
+
+<!-- Sprite de ícones (referenciados com <use href="#i-nome">) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-coffee" viewBox="0 0 24 24"><path d="M4 8h13v6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zM17 10h2a2 2 0 0 1 0 4h-2M7 2v3M11 2v3M15 2v3"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10 21a2 2 0 0 0 4 0"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h2M10 12h10M4 18h12M14 4v4M8 10v4M16 16v4"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M22 17l-8.5-8.5-5 5L2 7M16 17h6v-6"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M22 7l-8.5 8.5-5-5L2 17M16 7h6v6"/></symbol>
+  <symbol id="i-scale" viewBox="0 0 24 24"><path d="M12 3v18M5 21h14M5 8l-3 7a3 3 0 0 0 6 0zM19 8l-3 7a3 3 0 0 0 6 0zM5 8h14"/></symbol>
+  <symbol id="i-pie" viewBox="0 0 24 24"><path d="M21.2 15.9A10 10 0 1 1 8 2.8M22 12A10 10 0 0 0 12 2v10z"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+  <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></symbol>
+  <symbol id="i-print" viewBox="0 0 24 24"><path d="M7 9V3h10v6M6 17H4v-7h16v7h-2M7 14h10v7H7z"/></symbol>
+  <symbol id="i-sync" viewBox="0 0 24 24"><path d="M4 8h13l-3-3M20 16H7l3 3"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-grain" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="5" ry="8" transform="rotate(30 12 12)"/><path d="M9 7c4 3-3 7 1 10"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24"><path d="M3 7l9-4 9 4v10l-9 4-9-4zM3 7l9 4 9-4M12 11v10"/></symbol>
+  <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h5l3 4v3h-8z"/><circle cx="6" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></symbol>
+  <symbol id="i-fire" viewBox="0 0 24 24"><path d="M12 3c1 4 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z"/></symbol>
+  <symbol id="i-bars" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></symbol>
+  <symbol id="i-cash" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></symbol>
+</svg>
+
+<div class="page">
+
+  <!-- ===== Cabeçalho ===== -->
+  <header class="site-header">
+    <div class="container site-header__bar">
+      <div class="brand">
+        <div class="brand__logo" aria-hidden="true"><svg class="icon"><use href="#i-coffee"/></svg></div>
+        <div>
+          <span class="brand__name">Rota do Grão</span>
+          <div class="brand__status"><span class="pulse-dot"></span>Safra 2025/2026 ativa • <span id="currency-label">BRL (R$)</span></div>
+        </div>
+      </div>
+
+      <nav class="main-nav" aria-label="Principal">
+        <a class="main-nav__link" href="#inicio">Início</a>
+        <a class="main-nav__link" href="#custos" aria-current="true">Análise de Custos</a>
+        <a class="main-nav__link" href="#comparativo">Comparativo por Período</a>
+        <a class="main-nav__link" href="#relatorios">Relatórios</a>
+      </nav>
+
+      <div class="site-header__actions">
+        <button class="icon-btn" id="btn-alerts" type="button" aria-label="Notificações de mercado">
+          <svg class="icon" aria-hidden="true"><use href="#i-bell"/></svg><span class="icon-btn__badge"></span>
+        </button>
+        <button class="icon-btn" id="btn-settings" type="button" aria-label="Ir para os parâmetros de custo">
+          <svg class="icon" aria-hidden="true"><use href="#i-sliders"/></svg>
+        </button>
+        <button class="btn btn--outline" id="btn-new-lot" type="button">
+          <svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg><span>Novo Lote</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container main">
+
+    <!-- ===== Hero ===== -->
+    <section class="hero" id="inicio" aria-labelledby="hero-title">
+      <div>
+        <div class="hero__tag"><svg class="icon" aria-hidden="true"><use href="#i-bars"/></svg><span class="label-caps">Inteligência Financeira Cafeeira</span></div>
+        <h1 class="hero__title" id="hero-title">Gestão Financeira &amp; Análise de Custos da Rota</h1>
+        <p class="hero__lead">Monitore oscilações de insumos, compare safras e períodos operacionais com inteligência analítica cafeeira de alta fidelidade.</p>
+      </div>
+      <div class="ticker" aria-label="Cotações de mercado simuladas">
+        <div class="quote"><span class="label-caps">Arábica NY (KC):</span><span class="quote__value numeral" id="quote-ny">US$ 242,80</span><b class="quote__delta is-up" id="quote-ny-delta">▲ 1,4%</b></div>
+        <div class="quote"><span class="label-caps">Saca 60kg Mogiana:</span><span class="quote__value numeral" id="quote-saca">R$ 1.340</span><b class="quote__delta is-down" id="quote-saca-delta">▼ 0,5%</b></div>
+      </div>
+    </section>
+
+    <!-- ===== Parâmetros ===== -->
+    <section class="card card--section" id="custos" aria-labelledby="settings-title">
+      <div class="section-head section-head--bordered">
+        <div>
+          <h2 id="settings-title">Configuração de Parâmetros de Custo</h2>
+          <p class="caption">Calibre as variáveis operacionais para recalcular as projeções de margem em tempo real.</p>
+        </div>
+        <span class="label-caps">Modo Heurístico</span>
+      </div>
+
+      <form class="settings-form" id="cost-form" novalidate>
+        <div class="field">
+          <label class="label-caps" for="period">Período Comparativo</label>
+          <select class="select" id="period" name="period">
+            <option>Período A vs Período B</option>
+            <option>Mês Anterior vs Mês Atual</option>
+            <option>Safra 2024 vs Safra 2025</option>
+            <option>Personalizado (Auditado)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="label-caps" for="input-type">Tipo de Insumo / Origem</label>
+          <select class="select" id="input-type" name="input-type">
+            <option>Grãos Especiais (84+ SCA)</option>
+            <option>Embalagens Kraft c/ Válvula</option>
+            <option>Torra &amp; Processamento Artesanal</option>
+            <option>Logística &amp; Frete Expresso</option>
+            <option>Operação Geral / Cupping</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="label-caps" for="cost">Custo Médio por KG</label>
+          <div class="input-prefix">
+            <span class="label-caps" id="currency-symbol">R$</span>
+            <input class="input input--numeric" id="cost" name="cost" inputmode="decimal" value="78,50" autocomplete="off">
+          </div>
+        </div>
+        <div class="field">
+          <label class="label-caps" for="volume">Volume Adquirido (KG)</label>
+          <div class="stepper">
+            <button type="button" id="volume-dec" aria-label="Diminuir volume em 10 kg"><svg class="icon" aria-hidden="true"><use href="#i-minus"/></svg></button>
+            <input id="volume" name="volume" inputmode="numeric" value="180" autocomplete="off">
+            <button type="button" id="volume-inc" aria-label="Aumentar volume em 10 kg"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg></button>
+          </div>
+        </div>
+        <div class="field">
+          <span class="label-caps" id="currency-group-label">Cotação Base</span>
+          <div class="segmented" id="currency-switch" role="group" aria-labelledby="currency-group-label">
+            <button type="button" data-currency="BRL" aria-pressed="true">BRL</button>
+            <button type="button" data-currency="USD" aria-pressed="false">USD</button>
+            <button type="button" data-currency="EUR" aria-pressed="false">EUR</button>
+          </div>
+          <button class="btn btn--primary btn--block" type="submit"><svg class="icon" aria-hidden="true"><use href="#i-sync"/></svg>Simular</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- ===== Painel comparativo ===== -->
+    <section class="dashboard" id="comparativo" aria-labelledby="dashboard-title">
+      <div class="section-head section-head--page">
+        <div>
+          <h2 id="dashboard-title">Painel Comparativo de Custos &amp; Eficiência Operacional</h2>
+          <p class="caption" id="benchmark-text"></p>
+        </div>
+        <div class="legend" aria-label="Legenda dos períodos">
+          <span class="label-caps">Legenda:</span>
+          <span class="badge badge--muted badge--legend"><span class="legend-dot legend-dot--prev"></span><span data-label="prev">Período A</span></span>
+          <span class="badge badge--muted badge--legend-active"><span class="legend-dot"></span><span data-label="curr">Período B</span></span>
+        </div>
+      </div>
+
+      <div class="kpi-grid">
+        <article class="card kpi">
+          <div class="kpi__top"><span class="label-caps">Custo Total Consolidado</span><svg class="icon" aria-hidden="true"><use href="#i-cash"/></svg></div>
+          <div class="kpi__value" id="kpi-total" aria-live="polite"></div>
+          <div class="kpi__foot"><span class="badge" id="kpi-total-badge"></span><span><span id="kpi-total-caption">Economia:</span> <b id="kpi-total-delta"></b></span></div>
+        </article>
+        <article class="card kpi">
+          <div class="kpi__top"><span class="label-caps">Custo Médio por KG / Unidade</span><svg class="icon" aria-hidden="true"><use href="#i-scale"/></svg></div>
+          <div class="kpi__value"><span id="kpi-unit"></span> <small>/ kg</small></div>
+          <div class="kpi__foot"><span class="badge badge--muted" id="kpi-unit-badge"></span><span>Rendimento: <b>55 doses/kg</b></span></div>
+        </article>
+        <article class="card kpi">
+          <div class="kpi__top"><span class="label-caps">Eficiência Operacional / Margem</span><svg class="icon" aria-hidden="true"><use href="#i-pie"/></svg></div>
+          <div class="kpi__value" id="kpi-efficiency"></div>
+          <div class="kpi__foot"><span class="badge" id="kpi-efficiency-badge"></span><span>Desperdício residual: <b id="kpi-waste"></b></span></div>
+        </article>
+      </div>
+
+      <div class="chart-row">
+        <article class="card panel">
+          <div class="panel__head">
+            <div><h3>Comparativo de Custos por Categoria</h3><p class="caption">Variação nominal entre os centros de custo da torrefação</p></div>
+            <span class="badge badge--tag"><svg class="icon" aria-hidden="true"><use href="#i-up"/></svg><span id="best-saving"></span></span>
+          </div>
+          <div class="chart-box"><canvas id="chart-categories" role="img" aria-label="Gráfico de barras comparando custos por categoria entre os dois períodos"></canvas></div>
+          <p class="caption panel__foot"><svg class="icon" aria-hidden="true"><use href="#i-info"/></svg> Valores computados em base D+15 pós-fechamento</p>
+        </article>
+
+        <article class="card panel">
+          <div class="panel__head">
+            <div><h3>Evolução Mensal de Desembolso</h3><p class="caption">Curva anual de capital alocado</p></div>
+            <div class="toggle" id="year-toggle" role="group" aria-label="Ano da curva">
+              <button type="button" data-year="2026" aria-pressed="true">2026</button>
+              <button type="button" data-year="2025" aria-pressed="false">2025</button>
+            </div>
+          </div>
+          <span class="badge badge--tag" id="peak-tag" style="align-self:flex-start"></span>
+          <div class="chart-box chart-box--short"><canvas id="chart-monthly" role="img" aria-label="Curva de desembolso mensal da safra"></canvas></div>
+          <p class="note"><svg class="icon" aria-hidden="true"><use href="#i-drop"/></svg>Previsão de estiagem amenizada no Sul de Minas: cotação futura estabilizada com -4,2% de risco de quebra de safra.</p>
+        </article>
+      </div>
+
+      <aside class="card insight" aria-labelledby="insight-title">
+        <div class="insight__icon" aria-hidden="true"><svg class="icon"><use href="#i-spark"/></svg></div>
+        <div>
+          <h3 id="insight-title">Insight Estratégico de Variação</h3><span class="badge badge--flat">Alta Relevância</span>
+          <p id="insight-text"></p>
+        </div>
+      </aside>
+
+      <section class="card table-card" id="relatorios" aria-labelledby="table-title">
+        <div class="table-card__head">
+          <div><h3 id="table-title">Detalhamento de Custos por Período</h3><p class="caption">Demonstrativo auditado por centro de alocação de grãos e beneficiamento</p></div>
+          <div class="chips" id="filter-chips" role="group" aria-label="Filtrar por categoria"></div>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <caption class="visually-hidden">Custos por lote, comparando os dois períodos</caption>
+            <thead>
+              <tr class="label-caps">
+                <th scope="col" aria-sort="none"><button class="sort-btn label-caps" type="button" data-sort="name">Item / Categoria</button></th>
+                <th scope="col" class="is-end" aria-sort="none"><button class="sort-btn label-caps" type="button" data-sort="costA"><span data-label="prev">Período A</span></button></th>
+                <th scope="col" class="is-end" aria-sort="none"><button class="sort-btn label-caps" type="button" data-sort="costB"><span data-label="curr">Período B</span></button></th>
+                <th scope="col" class="is-end" aria-sort="none"><button class="sort-btn label-caps" type="button" data-sort="delta">Variação (R$)</button></th>
+                <th scope="col" class="is-end" aria-sort="none"><button class="sort-btn label-caps" type="button" data-sort="pct">Variação (%)</button></th>
+                <th scope="col" class="is-center">Status</th>
+              </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+          </table>
+        </div>
+        <div class="table-card__foot">
+          <span class="label-caps" id="table-count"></span>
+          <div class="table-card__actions">
+            <button class="link-btn" id="btn-csv" type="button"><svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>Copiar CSV</button>
+            <button class="link-btn" id="btn-print" type="button"><svg class="icon" aria-hidden="true"><use href="#i-print"/></svg>Relatório (.PDF)</button>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container site-footer__inner">
+      <div>
+        <span class="site-footer__brand">Rota do Grão</span>
+        <p class="caption">© 2026 Rota do Grão. Inteligência Financeira e Sensorial Cafeeira. Dados simulados para demonstração.</p>
+      </div>
+      <nav class="site-footer__nav" aria-label="Rodapé">
+        <a href="#inicio">Termos de Hedge</a><a href="#inicio">Políticas de Auditoria</a><a href="#inicio">Cotações da Safra</a><a href="#inicio">Suporte Institucional</a>
+      </nav>
+    </div>
+  </footer>
+</div>
+
+<!-- ===== Modal: novo lote ===== -->
+<dialog class="modal" id="lot-modal" aria-labelledby="lot-modal-title">
+  <form class="modal__body" id="lot-form" method="dialog" novalidate>
+    <div class="modal__head">
+      <h2 id="lot-modal-title">Novo Lote</h2>
+      <button class="icon-btn" type="button" data-close aria-label="Fechar"><svg class="icon" aria-hidden="true"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="field"><label class="label-caps" for="lot-name">Nome do lote</label><input class="input" id="lot-name" placeholder="Ex.: Microlote Sul de Minas" autocomplete="off"></div>
+    <div class="field"><label class="label-caps" for="lot-category">Categoria</label>
+      <select class="select" id="lot-category"><option value="raw">Matéria-Prima</option><option value="service">Serviços</option><option value="freight">Frete</option></select>
+    </div>
+    <div class="modal__row">
+      <div class="field"><label class="label-caps" for="lot-cost-a">Custo Período A (R$)</label><input class="input" id="lot-cost-a" inputmode="decimal" placeholder="0,00"></div>
+      <div class="field"><label class="label-caps" for="lot-cost-b">Custo Período B (R$)</label><input class="input" id="lot-cost-b" inputmode="decimal" placeholder="0,00"></div>
+    </div>
+    <div class="modal__actions">
+      <button class="btn btn--ghost" type="button" data-close>Cancelar</button>
+      <button class="btn btn--primary" type="submit">Adicionar</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+(() => {
+'use strict';
+/**
+ * Configuração e dados-semente da aplicação (sem lógica).
+ * Valores monetários em BRL; a conversão acontece apenas na camada de formatação.
+ */
+
+/** Centros de custo exibidos no gráfico de categorias. */
+const COST_GROUPS = ['Grãos Especiais', 'Logística & Frete', 'Embalagens Kraft', 'Torrefação & Cupping'];
+
+/** Lotes iniciais. `group` é o índice em COST_GROUPS; `category` alimenta os filtros. */
+const SEED_LOTS = [
+  { name: 'Microlote Alta Mogiana', note: 'Catuaí Amarelo • CD 86pts SCA', category: 'raw', group: 0, costA: 5200, costB: 4450, icon: 'grain' },
+  { name: 'Cerrado Catuaí 84+', note: 'Processo Natural • Lote Padrão', category: 'raw', group: 0, costA: 3700, costB: 3300, icon: 'grain' },
+  { name: 'Embalagens Kraft 250g / 1kg', note: 'Válvula desgaseificadora + zip', category: 'raw', group: 2, costA: 2100, costB: 1950, icon: 'box' },
+  { name: 'Frete SCA Dedicado', note: 'Transporte climatizado fazenda-torrefação', category: 'freight', group: 1, costA: 1850, costB: 2300, icon: 'truck' },
+  { name: 'Serviço de Torra Perfil Artesanal', note: 'Atelier Probat 12kg • Gás GLP', category: 'service', group: 3, costA: 2680, costB: 2250, icon: 'fire' },
+];
+
+const CATEGORIES = {
+  raw: { label: 'Matéria-Prima', group: 0, icon: 'grain' },
+  service: { label: 'Serviços', group: 3, icon: 'fire' },
+  freight: { label: 'Frete', group: 1, icon: 'truck' },
+};
+
+/** Presets do seletor de período: fatores aplicados aos períodos A e B. */
+const PERIODS = [
+  { factorA: 1, factorB: 1, labels: ['Período A', 'Período B'], text: 'Benchmark direto entre Período A (Safra Passada) e Período B (Safra em Curso).' },
+  { factorA: 0.09, factorB: 0.1, labels: ['Mês Anterior', 'Mês Atual'], text: 'Benchmark entre o mês anterior e o mês em curso.' },
+  { factorA: 0.93, factorB: 1, labels: ['Safra 2024', 'Safra 2025'], text: 'Benchmark entre as safras 2024 e 2025.' },
+  { factorA: 1.04, factorB: 0.97, labels: ['Base Auditada', 'Cenário Personalizado'], text: 'Cenário personalizado contra a base auditada.' },
+];
+
+/** Para cada opção do seletor de insumo, qual centro de custo ela afeta. */
+const INPUT_TYPE_GROUP = [0, 2, 3, 1, 3];
+
+/** Taxas simuladas (BRL → moeda). */
+const CURRENCIES = {
+  BRL: { rate: 1, symbol: 'R$', label: 'BRL (R$)' },
+  USD: { rate: 0.1835, symbol: 'US$', label: 'USD (US$)' },
+  EUR: { rate: 0.168, symbol: '€', label: 'EUR (€)' },
+};
+
+/** Cenário de referência usado para normalizar a simulação. */
+const BASELINE = { cost: 78.5, volume: 180, totalA: 15530, totalB: 14250, efficiency: 94.8, efficiencyPrev: 91.3 };
+
+const STATUS = {
+  optimized: { label: 'Otimizado', tone: '' },
+  stable: { label: 'Estável', tone: 'badge--muted' },
+  alert: { label: 'Alerta', tone: 'badge--muted' },
+};
+
+const MONTHS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+/** Desembolso mensal em milhares de BRL. */
+const MONTHLY = {
+  2026: [9.2, 9.8, 10.4, 11.6, 12.9, 13.8, 14.6, 16.2, 17.5, 18.4, 15.9, 14.1],
+  2025: [10.1, 10.6, 11, 12, 12.8, 13.4, 14.2, 15, 16.1, 16.9, 15.2, 13.8],
+};
+
+const MARKET = { arabicaUsd: 242.8, sacaBrl: 1340, arabicaDay: 1.4, sacaDay: -0.5 };
+
+
+/** Estado único da aplicação. `result` é preenchido por computeScenario(). */
+const state = {
+  period: 0,
+  inputType: 0,
+  cost: 78.5,
+  volume: 180,
+  currency: 'BRL',
+  filter: 'all',
+  year: 2026,
+  sortKey: null,
+  sortDir: 1,
+  lots: SEED_LOTS.map((lot) => ({ ...lot })),
+  result: null,
+};
+
+/** Helpers de DOM sem dependência de domínio. */
+
+const $ = (selector, root = document) => root.querySelector(selector);
+const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+
+const ENTITIES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+/** Escapa texto de usuário antes de inseri-lo via innerHTML. */
+const escapeHtml = (text) => String(text).replace(/[&<>"']/g, (ch) => ENTITIES[ch]);
+
+/** Marcação de um ícone do sprite definido no index.html. */
+const icon = (name) => `<svg class="icon" aria-hidden="true"><use href="#i-${name}"/></svg>`;
+
+const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/** Anima um número até `target`, escrevendo o texto formatado em `el`. */
+function animateNumber(el, target, format) {
+  const from = el._value ?? target * 0.85;
+  el._value = target;
+  if (prefersReducedMotion()) {
+    el.textContent = format(target);
+    return;
+  }
+  const start = performance.now();
+  const step = (now) => {
+    const t = Math.min(1, (now - start) / 600);
+    const eased = 1 - (1 - t) ** 3;
+    el.textContent = format(from + (target - from) * eased);
+    if (t < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+let toastTimer;
+function showToast(message) {
+  const el = $('#toast');
+  el.textContent = message;
+  el.classList.add('is-visible');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('is-visible'), 2200);
+}
+
+
+
+const formatters = {};
+const currencyFormatter = (code) =>
+  (formatters[code] ??= new Intl.NumberFormat('pt-BR', { style: 'currency', currency: code }));
+
+/** Converte BRL para a moeda ativa. */
+const toCurrency = (valueBrl) => valueBrl * CURRENCIES[state.currency].rate;
+
+/** Formata um valor já convertido na moeda ativa. `trim` remove ",00". */
+function formatRaw(value, { trim = false } = {}) {
+  const text = currencyFormatter(state.currency).format(value);
+  return trim ? text.replace(/,00$/, '') : text;
+}
+
+/** Formata um valor em BRL na moeda ativa. */
+const formatMoney = (valueBrl, options) => formatRaw(toCurrency(valueBrl), options);
+
+const formatSignedMoney = (valueBrl) =>
+  `${valueBrl > 0 ? '+ ' : valueBrl < 0 ? '- ' : ''}${formatMoney(Math.abs(valueBrl))}`;
+
+function formatPercent(value, { signed = true, digits = 1 } = {}) {
+  const sign = signed ? (value > 0 ? '+' : value < 0 ? '-' : '') : '';
+  return `${sign}${Math.abs(value).toFixed(digits).replace('.', ',')}%`;
+}
+
+/** Interpreta números no padrão pt-BR ("1.234,56"). */
+const parseDecimal = (text) => parseFloat(String(text).replace(/\./g, '').replace(',', '.')) || 0;
+
+
+const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
+function statusFor(pct) {
+  if (pct <= -10) return 'optimized';
+  if (pct > 10) return 'alert';
+  return 'stable';
+}
+
+/**
+ * Função pura: dado o estado de entrada, devolve linhas, totais, grupos e KPIs.
+ * Sem acesso a DOM ou a estado global, o que facilita testes.
+ */
+function computeScenario({ period, inputType, cost, volume, lots }) {
+  const preset = PERIODS[period];
+  const scale = (cost * volume) / (BASELINE.cost * BASELINE.volume);
+  const affectedGroup = INPUT_TYPE_GROUP[inputType];
+
+  const rows = lots.map((lot) => {
+    const costA = lot.costA * preset.factorA;
+    const costB = lot.costB * preset.factorB * (lot.group === affectedGroup ? scale : 1);
+    const delta = costB - costA;
+    const pct = costA ? (delta / costA) * 100 : 0;
+    return { ...lot, costA, costB, delta, pct, status: statusFor(pct) };
+  });
+
+  const sum = (list, key) => list.reduce((acc, row) => acc + row[key], 0);
+  const totalA = sum(rows, 'costA');
+  const totalB = sum(rows, 'costB');
+
+  const groups = COST_GROUPS.map((name, index) => {
+    const members = rows.filter((row) => row.group === index);
+    const a = sum(members, 'costA');
+    const b = sum(members, 'costB');
+    return { name, a, b, delta: b - a, pct: a ? ((b - a) / a) * 100 : 0 };
+  });
+
+  const safeVolume = Math.max(volume, 1);
+  const efficiency = clamp(
+    BASELINE.efficiency + (1 - totalB / totalA / (BASELINE.totalB / BASELINE.totalA)) * 20, 70, 99.5);
+
+  return {
+    rows,
+    groups,
+    totals: { a: totalA, b: totalB, delta: totalB - totalA, pct: totalA ? ((totalB - totalA) / totalA) * 100 : 0 },
+    unit: { a: totalA / safeVolume, b: totalB / safeVolume },
+    efficiency,
+    /** Razão entre o custo atual e o cenário de referência (escala a curva mensal). */
+    ratio: totalB / BASELINE.totalB,
+    labels: preset.labels,
+    benchmark: preset.text,
+  };
+}
+
+
+
+
+
+const TOOLTIP = {
+  backgroundColor: '#140F0C',
+  borderColor: 'rgba(224,193,160,.25)',
+  borderWidth: 1,
+  titleColor: '#E6C6A4',
+  bodyColor: '#C4AD91',
+  padding: 10,
+  titleFont: { family: 'Oswald', size: 14 },
+};
+const GRID = 'rgba(224,193,160,.08)';
+
+let categoriesChart = null;
+let monthlyChart = null;
+
+function buildCategoriesChart() {
+  return new Chart($('#chart-categories'), {
+    type: 'bar',
+    data: {
+      labels: [],
+      datasets: [
+        { label: '', data: [], backgroundColor: 'rgba(196,173,145,.35)', borderRadius: 4 },
+        { label: '', data: [], backgroundColor: '#C86D2B', borderRadius: 4 },
+      ],
+    },
+    options: {
+      indexAxis: 'y',
+      maintainAspectRatio: false,
+      animation: { duration: 700 },
+      scales: {
+        x: { grid: { color: GRID }, ticks: { callback: (v) => formatRaw(v, { trim: true }) } },
+        y: { grid: { display: false }, ticks: { color: '#E6C6A4', font: { weight: 600 } } },
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          ...TOOLTIP,
+          callbacks: {
+            label: (ctx) => ` ${ctx.dataset.label}: ${formatRaw(ctx.parsed.x)}`,
+            afterBody: (items) => `Δ ${formatPercent(state.result.groups[items[0].dataIndex].pct)}`,
+          },
+        },
+      },
+    },
+  });
+}
+
+function buildMonthlyChart() {
+  const areaGradient = ({ chart }) => {
+    const area = chart.chartArea;
+    if (!area) return 'rgba(200,109,43,.3)';
+    const gradient = chart.ctx.createLinearGradient(0, area.top, 0, area.bottom);
+    gradient.addColorStop(0, 'rgba(200,109,43,.4)');
+    gradient.addColorStop(1, 'rgba(200,109,43,0)');
+    return gradient;
+  };
+  return new Chart($('#chart-monthly'), {
+    type: 'line',
+    data: {
+      labels: MONTHS,
+      datasets: [
+        { label: '', data: [], borderColor: '#C86D2B', borderWidth: 2.5, tension: 0.4, fill: true, pointRadius: 0, pointHoverRadius: 5, pointBackgroundColor: '#ffb689', backgroundColor: areaGradient },
+        { label: '', data: [], borderColor: 'rgba(196,173,145,.7)', borderDash: [4, 4], borderWidth: 1.5, tension: 0.4, pointRadius: 0, fill: false },
+      ],
+    },
+    options: {
+      maintainAspectRatio: false,
+      animation: { duration: 700 },
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        x: { grid: { display: false } },
+        y: { grid: { color: GRID, borderDash: [3, 3] }, ticks: { callback: (v) => formatRaw(v, { trim: true }) } },
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: { ...TOOLTIP, callbacks: { label: (ctx) => ` ${ctx.dataset.label}: ${formatRaw(ctx.parsed.y)}` } },
+      },
+    },
+  });
+}
+
+/** Atualiza (e cria, na primeira chamada) os dois gráficos. */
+function updateCharts(result) {
+  if (!window.Chart) return;
+  if (!categoriesChart) {
+    Chart.defaults.font.family = "'Open Sans', sans-serif";
+    Chart.defaults.color = '#C4AD91';
+    categoriesChart = buildCategoriesChart();
+    monthlyChart = buildMonthlyChart();
+  }
+
+  const [labelA, labelB] = result.labels;
+  const [setA, setB] = categoriesChart.data.datasets;
+  categoriesChart.data.labels = result.groups.map((g) => g.name);
+  setA.label = labelA;
+  setB.label = labelB;
+  setA.data = result.groups.map((g) => toCurrency(g.a));
+  setB.data = result.groups.map((g) => toCurrency(g.b));
+  categoriesChart.update();
+
+  const otherYear = state.year === 2026 ? 2025 : 2026;
+  const series = (year) =>
+    MONTHLY[year].map((thousands) => toCurrency(thousands * 1000 * (year === 2026 ? result.ratio : 1)));
+  const main = series(state.year);
+  const [mainSet, otherSet] = monthlyChart.data.datasets;
+  mainSet.data = main;
+  mainSet.label = `Safra ${state.year}`;
+  otherSet.data = series(otherYear);
+  otherSet.label = `Safra ${otherYear}`;
+  monthlyChart.update();
+
+  const peak = Math.max(...main);
+  $('#peak-tag').innerHTML = `${icon('up')}${MONTHS[main.indexOf(peak)]}: ${formatRaw(peak, { trim: true })} (Pico)`;
+}
+
+
+
+
+/** Textos dinâmicos dos períodos (legenda, cabeçalhos, benchmark). */
+function renderLabels(result) {
+  const [prev, curr] = result.labels;
+  $$('[data-label="prev"]').forEach((el) => (el.textContent = prev));
+  $$('[data-label="curr"]').forEach((el) => (el.textContent = `${curr} (Ativo)`));
+  $('#benchmark-text').textContent = result.benchmark;
+}
+
+function renderKpis(result) {
+  const { totals, unit, efficiency, labels } = result;
+  const saved = totals.delta <= 0;
+
+  animateNumber($('#kpi-total'), totals.b, (v) => formatMoney(v));
+  $('#kpi-total-badge').innerHTML = `${icon(saved ? 'down' : 'up')}${formatPercent(totals.pct)} vs ${labels[0]}`;
+  $('#kpi-total-caption').textContent = saved ? 'Economia:' : 'Acréscimo:';
+  $('#kpi-total-delta').textContent = formatMoney(Math.abs(totals.delta));
+
+  animateNumber($('#kpi-unit'), unit.b, (v) => formatMoney(v));
+  const unitPct = ((unit.b - unit.a) / unit.a) * 100;
+  $('#kpi-unit-badge').innerHTML = `${icon(unitPct >= 0 ? 'up' : 'down')}${formatPercent(unitPct)} ponderado`;
+
+  animateNumber($('#kpi-efficiency'), efficiency, (v) => `${v.toFixed(1).replace('.', ',')}%`);
+  const gain = efficiency - BASELINE.efficiencyPrev;
+  $('#kpi-efficiency-badge').innerHTML = `${icon(gain >= 0 ? 'up' : 'down')}${formatPercent(gain, { signed: true }).replace('%', '')} pp otimização`;
+  $('#kpi-waste').textContent = formatPercent(100 - efficiency, { signed: false });
+
+  const best = [...result.groups].sort((x, y) => x.delta - y.delta)[0];
+  const sign = best.delta <= 0 ? '-' : '+';
+  $('#best-saving').textContent = `${sign}${formatMoney(Math.abs(best.delta), { trim: true })} em ${best.name.split(' ')[0].toLowerCase()}`;
+}
+
+function renderInsight(result) {
+  const byPct = [...result.groups].sort((x, y) => x.pct - y.pct);
+  const lowest = byPct[0];
+  const highest = byPct.at(-1);
+  const currentLabel = result.labels[1];
+  const { totals } = result;
+
+  let html = `O custo consolidado de <b>${lowest.name.toLowerCase()}</b> ${lowest.pct < 0 ? 'retraiu' : 'avançou'} <b>${formatPercent(lowest.pct, { signed: false })} no ${currentLabel}</b>`;
+  html += highest.pct > 0 && highest !== lowest
+    ? `, enquanto <b class="is-alert">${highest.name.toLowerCase()} subiu ${formatPercent(highest.pct, { signed: false })}</b>, pressionando a margem do trimestre. `
+    : '. ';
+  html += `No saldo, o custo total ${totals.delta <= 0 ? 'recuou' : 'cresceu'} <b>${formatMoney(Math.abs(totals.delta))}</b>. `;
+  html += totals.delta <= 0
+    ? 'Recomenda-se manter o hedge físico para as remessas do 4º trimestre.'
+    : 'Recomenda-se renegociar contratos e antecipar o hedge das próximas remessas.';
+  $('#insight-text').innerHTML = html;
+}
+
+
+
+
+
+const FILTERS = [['all', 'Todos os Itens'], ...Object.entries(CATEGORIES).map(([key, c]) => [key, c.label])];
+
+function renderChips(rows) {
+  const count = (key) => (key === 'all' ? rows.length : rows.filter((r) => r.category === key).length);
+  $('#filter-chips').innerHTML = FILTERS.map(([key, label]) =>
+    `<button class="chip" type="button" data-filter="${key}" aria-pressed="${state.filter === key}">${label} (${count(key)})</button>`).join('');
+}
+
+function visibleRows(rows) {
+  const filtered = rows.filter((r) => state.filter === 'all' || r.category === state.filter);
+  const key = state.sortKey;
+  if (!key) return filtered;
+  return [...filtered].sort((a, b) =>
+    (typeof a[key] === 'string' ? a[key].localeCompare(b[key]) : a[key] - b[key]) * state.sortDir);
+}
+
+function renderRow(row) {
+  const tone = row.delta < 0 ? 'var(--color-accent)' : row.delta > 0 ? 'var(--color-warn)' : 'var(--color-text-muted)';
+  const status = STATUS[row.status];
+  const cell = (content, color) => `<td class="cell-value is-end"${color ? ` style="color:${color}"` : ''}>${content}</td>`;
+  return `<tr>
+    <td><div class="lot"><span class="lot__icon">${icon(row.icon)}</span><div><b>${escapeHtml(row.name)}</b><small>${escapeHtml(row.note)}</small></div></div></td>
+    ${cell(formatMoney(row.costA), 'var(--color-text-muted)')}
+    ${cell(formatMoney(row.costB))}
+    ${cell(formatSignedMoney(row.delta), tone)}
+    ${cell(formatPercent(row.pct), tone)}
+    <td class="is-center"><span class="badge ${status.tone}">${status.label}</span></td>
+  </tr>`;
+}
+
+function renderSortState() {
+  $$('th[aria-sort]').forEach((th) => {
+    const active = th.querySelector('[data-sort]')?.dataset.sort === state.sortKey;
+    th.setAttribute('aria-sort', active ? (state.sortDir === 1 ? 'ascending' : 'descending') : 'none');
+  });
+}
+
+function renderTable({ rows }) {
+  renderChips(rows);
+  const list = visibleRows(rows);
+  $('#table-body').innerHTML = list.length
+    ? list.map(renderRow).join('')
+    : '<tr><td class="empty-row" colspan="6">Nenhum registro nesta categoria.</td></tr>';
+  $('#table-count').textContent = `Exibindo ${list.length} de ${rows.length} registros homologados para a Safra 2025/2026`;
+  renderSortState();
+}
+
+
+
+
+
+/** Liga o <dialog> de novo lote. `onAdded` é chamado após inserir o lote. */
+function initLotModal(onAdded) {
+  const dialog = $('#lot-modal');
+  const form = $('#lot-form');
+  const nameInput = $('#lot-name');
+
+  $('#btn-new-lot').addEventListener('click', () => {
+    dialog.showModal();
+    nameInput.focus();
+  });
+  $$('[data-close]', dialog).forEach((btn) => btn.addEventListener('click', () => dialog.close()));
+  // Clique no backdrop (o próprio <dialog>) fecha o modal.
+  dialog.addEventListener('click', (event) => { if (event.target === dialog) dialog.close(); });
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const name = nameInput.value.trim();
+    const costA = parseDecimal($('#lot-cost-a').value);
+    const costB = parseDecimal($('#lot-cost-b').value);
+    if (!name || (!costA && !costB)) {
+      showToast('Informe o nome e ao menos um valor');
+      return;
+    }
+    const category = $('#lot-category').value;
+    const preset = PERIODS[state.period];
+    state.lots.push({
+      name,
+      note: `${CATEGORIES[category].label} • Lote adicionado`,
+      category,
+      group: CATEGORIES[category].group,
+      icon: CATEGORIES[category].icon,
+      // Armazena na base do período 1 para que o fator do preset seja reaplicado corretamente.
+      costA: costA / preset.factorA,
+      costB: costB / preset.factorB,
+    });
+    form.reset();
+    dialog.close();
+    onAdded();
+    showToast('Lote adicionado à análise');
+  });
+}
+
+
+
+
+const brl = new Intl.NumberFormat('pt-BR');
+
+function paintDelta(el, pct) {
+  el.textContent = `${pct >= 0 ? '▲' : '▼'} ${formatPercent(pct, { signed: false })}`;
+  el.className = `quote__delta ${pct >= 0 ? 'is-up' : 'is-down'}`;
+}
+
+/** Simula cotações ao vivo com um passeio aleatório. */
+function startTicker(intervalMs = 3500) {
+  let arabica = MARKET.arabicaUsd;
+  let saca = MARKET.sacaBrl;
+  setInterval(() => {
+    arabica = Math.max(200, arabica + (Math.random() - 0.48) * 1.1);
+    saca = Math.max(1200, saca + (Math.random() - 0.5) * 6);
+    $('#quote-ny').textContent = `US$ ${arabica.toFixed(2).replace('.', ',')}`;
+    $('#quote-saca').textContent = `R$ ${brl.format(Math.round(saca))}`;
+    paintDelta($('#quote-ny-delta'), (arabica / MARKET.arabicaUsd - 1) * 100 + MARKET.arabicaDay);
+    paintDelta($('#quote-saca-delta'), (saca / MARKET.sacaBrl - 1) * 100 + MARKET.sacaDay);
+  }, intervalMs);
+}
+
+
+
+
+
+const setPressed = (buttons, activeButton) =>
+  buttons.forEach((btn) => btn.setAttribute('aria-pressed', String(btn === activeButton)));
+
+/** Liga formulário, alternadores, filtros, ordenação e ações. `render` redesenha a UI. */
+function initControls(render) {
+  const costInput = $('#cost');
+  const volumeInput = $('#volume');
+
+  $('#cost-form').addEventListener('submit', (event) => {
+    event.preventDefault();
+    state.period = $('#period').selectedIndex;
+    state.inputType = $('#input-type').selectedIndex;
+    state.cost = parseDecimal(costInput.value) || 78.5;
+    state.volume = Math.max(1, Math.round(parseDecimal(volumeInput.value)) || 180);
+    costInput.value = state.cost.toFixed(2).replace('.', ',');
+    volumeInput.value = state.volume;
+    render();
+    showToast('Simulação recalculada');
+  });
+
+  const nudgeVolume = (step) => {
+    volumeInput.value = Math.max(1, Math.round(parseDecimal(volumeInput.value)) + step);
+  };
+  $('#volume-dec').addEventListener('click', () => nudgeVolume(-10));
+  $('#volume-inc').addEventListener('click', () => nudgeVolume(10));
+
+  const currencyButtons = $$('#currency-switch button');
+  $('#currency-switch').addEventListener('click', (event) => {
+    const button = event.target.closest('[data-currency]');
+    if (!button) return;
+    state.currency = button.dataset.currency;
+    setPressed(currencyButtons, button);
+    $('#currency-label').textContent = CURRENCIES[state.currency].label;
+    $('#currency-symbol').textContent = CURRENCIES[state.currency].symbol;
+    render();
+    showToast(`Cotação base: ${CURRENCIES[state.currency].label} (taxa simulada)`);
+  });
+
+  const yearButtons = $$('#year-toggle button');
+  $('#year-toggle').addEventListener('click', (event) => {
+    const button = event.target.closest('[data-year]');
+    if (!button) return;
+    state.year = Number(button.dataset.year);
+    setPressed(yearButtons, button);
+    render();
+  });
+
+  $('#filter-chips').addEventListener('click', (event) => {
+    const chip = event.target.closest('[data-filter]');
+    if (!chip) return;
+    state.filter = chip.dataset.filter;
+    render();
+  });
+
+  $('.data-table thead').addEventListener('click', (event) => {
+    const button = event.target.closest('[data-sort]');
+    if (!button) return;
+    const key = button.dataset.sort;
+    state.sortDir = state.sortKey === key ? -state.sortDir : 1;
+    state.sortKey = key;
+    render();
+  });
+
+  $('#btn-csv').addEventListener('click', async () => {
+    const header = 'Item;Periodo A;Periodo B;Variacao;Variacao %';
+    const lines = state.result.rows.map((r) =>
+      [r.name, r.costA.toFixed(2), r.costB.toFixed(2), r.delta.toFixed(2), r.pct.toFixed(1)].join(';'));
+    try {
+      await navigator.clipboard.writeText([header, ...lines].join('\n'));
+      showToast('CSV copiado para a área de transferência');
+    } catch {
+      showToast('Não foi possível copiar neste ambiente');
+    }
+  });
+
+  $('#btn-print').addEventListener('click', () => {
+    try { window.print(); } catch { showToast('Impressão indisponível neste ambiente'); }
+  });
+  $('#btn-alerts').addEventListener('click', (event) => {
+    event.currentTarget.querySelector('.icon-btn__badge')?.remove();
+    showToast('Arábica NY em alta; frete rodoviário segue pressionado');
+  });
+  $('#btn-settings').addEventListener('click', () => {
+    $('#custos').scrollIntoView();
+    costInput.focus();
+  });
+}
+
+
+/** Destaca no menu a seção atualmente visível. */
+function initNavSpy() {
+  const links = $$('.main-nav__link');
+  const observer = new IntersectionObserver((entries) => {
+    entries.filter((e) => e.isIntersecting).forEach((entry) => {
+      links.forEach((link) => link.setAttribute('aria-current', String(link.hash === `#${entry.target.id}`)));
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  links.forEach((link) => {
+    const section = document.querySelector(link.hash);
+    if (section) observer.observe(section);
+  });
+}
+
+
+
+
+
+
+
+
+
+
+/** Ponto único de redesenho: estado → cálculo → UI. */
+function render() {
+  state.result = computeScenario(state);
+  renderLabels(state.result);
+  renderKpis(state.result);
+  updateCharts(state.result);
+  renderInsight(state.result);
+  renderTable(state.result);
+}
+
+initControls(render);
+initLotModal(render);
+initNavSpy();
+startTicker();
+render();
+
+})();
+</script>
+</body>
+</html>
